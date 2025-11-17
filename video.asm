@@ -1,6 +1,13 @@
 ;Funciones para generar pantalla del juego
 
 .MODEL SMALL
+
+.Data
+    x1 DW ?
+    y1 DW ?
+    x2 DW ?
+    y2 Dw ?
+
 .CODE
 
 ; --- Funciones públicas (para TETRIS.ASM) ---
@@ -39,6 +46,7 @@ DibujaPixel PROC
     PUSH BX
     PUSH CX ; X
     PUSH DX ; Y
+    PUSH DI
     
     ; Calcular offset = (y*320)+x
     MOV AX, 320
@@ -46,13 +54,15 @@ DibujaPixel PROC
     ADD AX, CX  ; AX += X
     MOV DI, AX
 
+    MOV ES:[DI], SI
+    
+    POP DI
     POP DX
     POP CX
     POP BX
     POP AX
 
     ; Escribir el píxel
-    MOV ES:[DI], SI
     RET
 DibujaPixel ENDP
 
@@ -60,72 +70,47 @@ DibujaPixel ENDP
 ; Dibuja un rectángulo (solo bordes).
 ; Entrada: AX = x1, BX = y1, CX = x2, DX = y2, SI = Color
 DibujaRectangulo PROC
-    PUSH AX     ; x1
-    PUSH BX     ; y1
-    PUSH CX     ; x2
-    PUSH DX     ; y2
-    
-    ; --- 2. Crear el "Stack Frame" ---
-    PUSH BP         ; Guardar el BP anterior
-    MOV BP, SP      ; Apuntar BP a la cima del stack
+    MOV x1, AX
+    MOV y1, BX
+    MOV x2, CX
+    MOV x2, DX
 
-    ; --- 3. Reservar espacio para variables locales ---
-    ;    (No necesitamos, usaremos los valores de la pila)
-    
-    ; --- Cómo acceder a los parámetros guardados (relativo a BP) ---
-    ; [BP+12] = AX (x1)
-    ; [BP+10] = BX (y1)
-    ; [BP+8]  = CX (x2)
-    ; [BP+6]  = DX (y2)
-    ; [BP+4]  = SI (Color)
-    ; [BP+2]  = IP de retorno
-    ; [BP]    = BP anterior
+    MOV CX, x1
+    MOV DX, y1
 
-
-    ; 1. Línea superior (y1)
-    MOV DX, [BP+10] ; DX = y1
-    MOV CX, [BP+12] ; CX = x1 (inicio del loop)
     .LOOP_TOP:
         CALL DibujaPixel
         INC CX
-        CMP CX, [BP+8] ; Compara CX (actual) con x2
+        CMP CX, x2
     JLE .LOOP_TOP
 
-    ; 2. Línea inferior (y2)
-    MOV DX, [BP+6]  ; DX = y2
-    MOV CX, [BP+12] ; CX = x1
-    .LOOP_BOTTOM:
+    MOV CX, x1
+    MOV DX, y2
+
+    .LOOP_BOT:
         CALL DibujaPixel
         INC CX
-        CMP CX, [BP+8] ; Compara CX con x2
-    JLE .LOOP_BOTTOM
+        CMP CX, x2
+    JLE .LOOP_BOT
 
-    ; 3. Línea izquierda (x1)
-    MOV CX, [BP+12] ; CX = x1
-    MOV DX, [BP+10] ; DX = y1 (inicio del loop)
+    MOV CX, x1
+    MOV DX, y1
+
     .LOOP_LEFT:
         CALL DibujaPixel
         INC DX
-        CMP DX, [BP+6] ; Compara DX (actual) con y2
+        CMP DX, y2
     JLE .LOOP_LEFT
 
-    ; 4. Línea derecha (x2)
-    MOV CX, [BP+8]  ; CX = x2
-    MOV DX, [BP+10] ; DX = y1
+    MOV CX, x2
+    MOV DX, y1
+
     .LOOP_RIGHT:
         CALL DibujaPixel
         INC DX
-        CMP DX, [BP+6] ; Compara DX con y2
-   JLE .LOOP_RIGHT
-   
-    ; --- 4. Destruir el "Stack Frame" ---
-    POP BP          ; Restaurar el BP anterior
-    
-    ; --- 5. Restaurar registros de entrada ---
-    POP DX
-    POP CX
-    POP BX
-    POP AX
+        CMP DX, y2
+    JLE .LOOP_RIGHT
+
     RET
 DibujaRectangulo ENDP
 
@@ -144,25 +129,25 @@ PantallaJuego PROC
 
     ; --- Caja 1: Tablero (100x200 píxeles) ---
     ; (Esto es para un tablero de 10 bloques de 10px de ancho)
-    MOV AX, 0  ; x1 = 10
-    MOV BX, 10   ; y1 = 0
-    MOV CX, 199 ; x2 = 110 (10 + 100)
-    MOV DX, 110 ; y2 = 199 (0 + 199, casi 200 de alto)
+    MOV AX, 10  ; x1 = 10
+    MOV BX, 0   ; y1 = 0
+    MOV CX, 110 ; x2 = 110 (10 + 100)
+    MOV DX, 199 ; y2 = 199 (0 + 199, casi 200 de alto)
     CALL DibujaRectangulo
 
-    ; --- Caja 2: Puntuación ---
-    MOV AX, 10 ; x1 = 120
-    MOV BX, 120  ; y1 = 10
-    MOV CX, 50 ; x2 = 310
-    MOV DX, 310  ; y2 = 50
-    CALL DibujaRectangulo
+;   ; --- Caja 2: Puntuación ---
+;   MOV AX, 120 ; x1 = 120
+;   MOV BX, 10  ; y1 = 10
+;   MOV CX, 310 ; x2 = 310
+;   MOV DX, 50  ; y2 = 50
+;   CALL DibujaRectangulo
 
-    ; --- Caja 3: Siguiente Pieza ---
-    MOV AX, 120 ; x1 = 120
-    MOV BX, 60  ; y1 = 60
-    MOV CX, 200 ; x2 = 200
-    MOV DX, 140 ; y2 = 140
-    CALL DibujaRectangulo
+;   ; --- Caja 3: Siguiente Pieza ---
+;   MOV AX, 120 ; x1 = 120
+;   MOV BX, 60  ; y1 = 60
+;   MOV CX, 200 ; x2 = 200
+;   MOV DX, 140 ; y2 = 140
+;   CALL DibujaRectangulo
 
     POP SI
     POP DX
