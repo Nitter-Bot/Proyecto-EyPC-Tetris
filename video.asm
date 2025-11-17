@@ -14,6 +14,7 @@
 PUBLIC IniciarGraficos
 PUBLIC RestaurarModoTexto
 PUBLIC PantallaJuego
+PUBLIC DibujaPixel
 
 ; Procedimiento IniciarModoGrafico -----------------
 ; Establece Modo 13h (320x200) y apunta ES a la VRAM.
@@ -128,26 +129,25 @@ PantallaJuego PROC
     ; --- Definir color ---
     MOV SI, 15  ; Color blanco brillante
 
-    ; --- Caja 1: Tablero (100x200 píxeles) ---
-    ; (Esto es para un tablero de 10 bloques de 10px de ancho)
-    MOV AX, 10  ; x1 = 10
-    MOV BX, 0   ; y1 = 0
-    MOV CX, 110 ; x2 = 110 (10 + 100)
-    MOV DX, 199 ; y2 = 199 (0 + 199, casi 200 de alto)
+    ; --- Caja 1: Tablero (190x190 píxeles) ---
+    MOV AX, 10
+    MOV BX, 5
+    MOV CX, 200
+    MOV DX, 195
     CALL DibujaRectangulo
 
     ; --- Caja 2: Puntuación ---
-    MOV AX, 120 ; x1 = 120
-    MOV BX, 10  ; y1 = 10
-    MOV CX, 310 ; x2 = 310
+    MOV AX, 210 ; x1 = 120
+    MOV BX, 20  ; y1 = 10
+    MOV CX, 300 ; x2 = 310
     MOV DX, 50  ; y2 = 50
     CALL DibujaRectangulo
 
     ; --- Caja 3: Siguiente Pieza ---
-    MOV AX, 120 ; x1 = 120
-    MOV BX, 60  ; y1 = 60
-    MOV CX, 200 ; x2 = 200
-    MOV DX, 140 ; y2 = 140
+    MOV AX, 225 ; x1 = 120
+    MOV BX, 70  ; y1 = 60
+    MOV CX, 285 ; x2 = 200
+    MOV DX, 130 ; y2 = 140
     CALL DibujaRectangulo
 
     POP SI
