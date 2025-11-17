@@ -1,0 +1,79 @@
+\documentclass[a4paper]{article}
+\input{/home/nitter/Desktop/Ingenieria/preamble.tex}
+% \usepackage{cmbright}
+
+\usepackage{faktor}
+
+\makeatletter
+\DeclareRobustCommand*{\mfaktor}[3][]
+{
+	{ \mathpalette{\mfaktor@impl@}{{#1}{#2}{#3}} }
+}
+\newcommand*{\mfaktor@impl@}[2]{\mfaktor@impl#1#2}
+\newcommand*{\mfaktor@impl}[4]{
+	\settoheight{\faktor@zaehlerhoehe}{\ensuremath{#1#2{#3}}}%
+	\settoheight{\faktor@nennerhoehe}{\ensuremath{#1#2{#4}}}%
+	\raisebox{-0.5\faktor@zaehlerhoehe}{\ensuremath{#1#2{#3}}}%
+	\mkern-4mu\diagdown\mkern-5mu%
+	\raisebox{0.5\faktor@nennerhoehe}{\ensuremath{#1#2{#4}}}%
+}
+\makeatother
+
+\DeclareMathOperator{\Ker}{ker}
+\DeclareMathOperator{\im}{Im}
+
+\usepackage[utf8]{inputenc}
+%\usepackage[style=numeric]{biblatex}  % Usar biblatex con Biber
+%\addbibresource{references.bib}  % Agregar el archivo .bib
+\usepackage{listings}
+\lstdefinestyle{estiloASM}{
+    language=[x86masm]assembler, % Lenguaje x86 MASM
+    basicstyle=\ttfamily\small,  % Fuente de monoespacio pequeña
+    keywordstyle=\color{blue}\bfseries, % Palabras clave en azul y negrita
+    commentstyle=\color{gray}\itshape,  % Comentarios en gris e itálica
+    stringstyle=\color{purple},
+    numberstyle=\tiny\color{gray}, % Números de línea pequeños y grises
+    numbers=left,                 % Números de línea a la izquierda
+    stepnumber=1,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    tabsize=2,
+    breaklines=true,
+    breakatwhitespace=true,
+    captionpos=b,                 % Posición del caption (abajo)
+    frame=single,                 % Un marco simple alrededor
+    framerule=0.5pt,
+}
+
+\title{Tarea 7}
+\author{
+	\textbf{Alumno:} Hernandez Chavez Samuel\\
+	\textbf{Profesor:} DR. ABRAHAM PEREZ ALONZO\\
+	\textbf{Grupo:} 4 \\
+}
+
+\begin{document}
+	
+
+	\maketitle
+	
+	\newpage
+
+	\tableofcontents
+	
+	\newpage
+
+	\input{Introduccion.tex}
+	\input{Tablero.tex}
+	\input{Siguiente.tex}
+	\input{Puntaje.tex}
+
+	%\input{Esteticos}
+
+	%\nocite{*}
+	%\newpage
+	%\printbibliography[title={Referencias}]
+	
+\end{document}
+
