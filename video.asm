@@ -2,20 +2,20 @@
 
 .MODEL SMALL
 
+;Variables para las coordenadas
 .Data
     x1 DW ?
     y1 DW ?
     x2 DW ?
-    y2 Dw ?
-
+    y2 DW ?
 .CODE
 
-; --- Funciones públicas (para TETRIS.ASM) ---
+; --- Funciones públicas
 PUBLIC IniciarGraficos
 PUBLIC RestaurarModoTexto
 PUBLIC PantallaJuego
 
-; --- Procedimiento IniciarModoGrafico ---
+; Procedimiento IniciarModoGrafico -----------------
 ; Establece Modo 13h (320x200) y apunta ES a la VRAM.
 IniciarGraficos PROC
     PUSH AX
@@ -27,7 +27,7 @@ IniciarGraficos PROC
     RET
 IniciarGraficos ENDP
 
-; --- Procedimiento RestaurarModoTexto ---
+; Procedimiento RestaurarModoTexto 
 ; Regresa a modo texto 80x25.
 RestaurarModoTexto PROC
     PUSH AX
@@ -37,7 +37,7 @@ RestaurarModoTexto PROC
     RET
 RestaurarModoTexto ENDP
 
-; --- Procedimiento DibujaPixel ---
+; Procedimiento DibujaPixel ---------------------
 ; Dibuja un píxel en la pantalla.
 ; Dada la coordenada calcula el offset donde debe
 ; ser dibujado
@@ -66,14 +66,15 @@ DibujaPixel PROC
     RET
 DibujaPixel ENDP
 
-; --- Procedimiento DibujaRectangulo (Helper Interno) ---
-; Dibuja un rectángulo (solo bordes).
-; Entrada: AX = x1, BX = y1, CX = x2, DX = y2, SI = Color
+; Procedimiento DibujaRectangulo ------------
+; Dibuja un rectangulo.
+; Entrada: AX = x1, BX = y1, CX = x2, DX = y2
+; 
 DibujaRectangulo PROC
     MOV x1, AX
     MOV y1, BX
     MOV x2, CX
-    MOV x2, DX
+    MOV y2, DX
 
     MOV CX, x1
     MOV DX, y1
@@ -135,19 +136,19 @@ PantallaJuego PROC
     MOV DX, 199 ; y2 = 199 (0 + 199, casi 200 de alto)
     CALL DibujaRectangulo
 
-;   ; --- Caja 2: Puntuación ---
-;   MOV AX, 120 ; x1 = 120
-;   MOV BX, 10  ; y1 = 10
-;   MOV CX, 310 ; x2 = 310
-;   MOV DX, 50  ; y2 = 50
-;   CALL DibujaRectangulo
+    ; --- Caja 2: Puntuación ---
+    MOV AX, 120 ; x1 = 120
+    MOV BX, 10  ; y1 = 10
+    MOV CX, 310 ; x2 = 310
+    MOV DX, 50  ; y2 = 50
+    CALL DibujaRectangulo
 
-;   ; --- Caja 3: Siguiente Pieza ---
-;   MOV AX, 120 ; x1 = 120
-;   MOV BX, 60  ; y1 = 60
-;   MOV CX, 200 ; x2 = 200
-;   MOV DX, 140 ; y2 = 140
-;   CALL DibujaRectangulo
+    ; --- Caja 3: Siguiente Pieza ---
+    MOV AX, 120 ; x1 = 120
+    MOV BX, 60  ; y1 = 60
+    MOV CX, 200 ; x2 = 200
+    MOV DX, 140 ; y2 = 140
+    CALL DibujaRectangulo
 
     POP SI
     POP DX
