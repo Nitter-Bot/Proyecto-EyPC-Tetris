@@ -13,6 +13,7 @@
 ; --- Funciones públicas
 PUBLIC IniciarGraficos
 PUBLIC RestaurarModoTexto
+PUBLIC LimpiarPantalla
 PUBLIC PantallaJuego
 PUBLIC DibujaPixel
 
@@ -37,6 +38,16 @@ RestaurarModoTexto PROC
     POP AX
     RET
 RestaurarModoTexto ENDP
+
+; Procedimiento LimpiarPantalla
+; Limpiar la pantalla
+LimpiarPantalla PROC
+    mov al, 06h
+    mov bh, 00h
+    mov cx, 0000h
+    mov dx, 184Fh
+    ret
+LimpiarPantalla ENDP
 
 ; Procedimiento DibujaPixel ---------------------
 ; Dibuja un píxel en la pantalla.
