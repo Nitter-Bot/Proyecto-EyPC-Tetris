@@ -3,12 +3,14 @@
 .MODEL SMALL
 
 .Data
+    PUBLIC score
     msg_score DB "Score:0000$"
+    score DW 0
 
 .CODE
 
 PUBLIC DisplayScore
-
+PUBLIC UpdateScore
 
 ; Procedimiento DisplayScore
 ; Despliega el puntaje del jugador
@@ -24,5 +26,24 @@ DisplayScore PROC
     INT 21h
     RET
 DisplayScore ENDP
+
+UpdateScore PROC
+    XOR AX, AX
+    MOV SI, 9
+    MOV AX, score
+    MOV BX, 10
+.label:
+    CMP SI, 5
+    JE .exit_label
+    XOR DX, DX
+    DIV BX
+    ADD DX, 30h
+    MOV [msg_score+si], DL
+    DEC SI
+    JMP .label
+.exit_label:
+    CALL DisplayScore
+    RET
+UpdateScore ENDP
 
 END
