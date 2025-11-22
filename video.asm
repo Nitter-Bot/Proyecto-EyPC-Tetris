@@ -4,18 +4,25 @@
 
 ;Variables para las coordenadas
 .Data
-    x1 DW ?
-    y1 DW ?
-    x2 DW ?
-    y2 DW ?
+    play_ground_start_col  DW   100;136;100 
+    play_ground_start_row  DW   4;160;4
+    play_ground_finish_col DW   220;172;220
+    play_ground_finish_row DW 196;196    
+    block_start_col DW 208
+    block_start_row DW 184
+    block_finish_col DW 220
+    block_finish_row DW 196
+
+    background_colour DB 68h
+    EXTRN block_border_colour : BYTE
 .CODE
 
 ; --- Funciones públicas
 PUBLIC IniciarGraficos
 PUBLIC RestaurarModoTexto
 PUBLIC LimpiarPantalla
-PUBLIC PantallaJuego
-PUBLIC DibujaPixel
+PUBLIC DibujarTablero
+PUBLIC DibujarBorde
 
 ; Procedimiento IniciarModoGrafico -----------------
 ; Establece Modo 13h (320x200) y apunta ES a la VRAM.
@@ -49,124 +56,86 @@ LimpiarPantalla PROC
     ret
 LimpiarPantalla ENDP
 
-; Procedimiento DibujaPixel ---------------------
-; Dibuja un píxel en la pantalla.
-; Dada la coordenada calcula el offset donde debe
-; ser dibujado
-DibujaPixel PROC
-    PUSH AX
-    PUSH BX
-    PUSH CX ; X
-    PUSH DX ; Y
-    PUSH DI
-    
-    ; Calcular offset = (y*320)+x
-    MOV AX, 320
-    MUL DX      ; AX = Y*320
-    ADD AX, CX  ; AX += X
-    MOV DI, AX
-
-    MOV ES:[DI], SI
-    
-    POP DI
-    POP DX
-    POP CX
-    POP BX
-    POP AX
-
-    ; Escribir el píxel
+; Procedimiento DibujarTablero
+; Dibuja el entorno donde el juego sera
+; llevado a cabo
+DibujarTablero PROC
+    MOV AH, 0Ch
+    MOV AL, background_colour
+    MOV DX, play_ground_start_row
+.LOOP1:
+    MOV CX, play_ground_start_col
+.LOOP2:
+    INT 10h
+    INC CX
+    CMP CX, play_ground_finish_col
+    JNZ .LOOP2
+    INC DX
+    CMP DX, play_ground_finish_row
+    JNZ .LOOP1
     RET
-DibujaPixel ENDP
+DibujarTablero ENDP
 
-; Procedimiento DibujaRectangulo ------------
-; Dibuja un rectangulo.
-; Entrada: AX = x1, BX = y1, CX = x2, DX = y2
-; 
-DibujaRectangulo PROC
-    MOV x1, AX
-    MOV y1, BX
-    MOV x2, CX
-    MOV y2, DX
-
-    MOV CX, x1
-    MOV DX, y1
-
-    .LOOP_TOP:
-        CALL DibujaPixel
-        INC CX
-        CMP CX, x2
-    JLE .LOOP_TOP
-
-    MOV CX, x1
-    MOV DX, y2
-
-    .LOOP_BOT:
-        CALL DibujaPixel
-        INC CX
-        CMP CX, x2
-    JLE .LOOP_BOT
-
-    MOV CX, x1
-    MOV DX, y1
-
-    .LOOP_LEFT:
-        CALL DibujaPixel
-        INC DX
-        CMP DX, y2
-    JLE .LOOP_LEFT
-
-    MOV CX, x2
-    MOV DX, y1
-
-    .LOOP_RIGHT:
-        CALL DibujaPixel
-        INC DX
-        CMP DX, y2
-    JLE .LOOP_RIGHT
-
+; Procedimiento DibujarBorde
+; Dibuja el borde del tablero
+DibujarBorde PROC
+    MOV BX, play_ground_start_row
+    MOV block_start_row, BX
+    ADD BX, 12
+    MOV block_finish_row, BX
+.Dibujar:
+    MOV BX, play_ground_start_col
+    MOV block_start_col, BX
+    ADD BX, 12
+    MOV block_finish_col, BX
+    .Dibujar2:
+        CALL Dibujar_Borde_Bloque_Unico
+        ADD block_start_col, 12
+        ADD block_finish_col, 12
+        MOV BX, play_ground_finish_col
+        CMP BX, block_start_col
+        JNZ .Dibujar2
+    ADD block_start_row, 12
+    ADD block_finish_row, 12
+    MOV BX, play_ground_finish_row
+    CMP BX, block_start_row
+    JNZ .Dibujar
     RET
-DibujaRectangulo ENDP
+DibujarBorde ENDP
 
-; --- Procedimiento PantallaJuego (Público) ---
-; Dibuja el layout principal del juego (cajas).
-; Tablero, Puntuacion, Siguiente pieza
-PantallaJuego PROC
-    PUSH AX
-    PUSH BX
-    PUSH CX
-    PUSH DX
-    PUSH SI
-
-    ; --- Definir color ---
-    MOV SI, 15  ; Color blanco brillante
-
-    ; --- Caja 1: Tablero (190x190 píxeles) ---
-    MOV AX, 10
-    MOV BX, 5
-    MOV CX, 200
-    MOV DX, 195
-    CALL DibujaRectangulo
-
-    ; --- Caja 2: Puntuación ---
-    MOV AX, 210 ; x1 = 120
-    MOV BX, 20  ; y1 = 10
-    MOV CX, 300 ; x2 = 310
-    MOV DX, 50  ; y2 = 50
-    CALL DibujaRectangulo
-
-    ; --- Caja 3: Siguiente Pieza ---
-    MOV AX, 225 ; x1 = 120
-    MOV BX, 70  ; y1 = 60
-    MOV CX, 285 ; x2 = 200
-    MOV DX, 130 ; y2 = 140
-    CALL DibujaRectangulo
-
-    POP SI
-    POP DX
-    POP CX
-    POP BX
-    POP AX
+; Procedimiento Dibujar_Borde_Bloque_Unico
+; Recibe el inicio de un bloque y dibuja su borde
+Dibujar_Borde_Bloque_Unico PROC
+    MOV AH, 0Ch
+    MOV AL, block_border_colour
+    DEC block_finish_row
+    MOV DX, block_start_row
+    MOV CX, block_start_col
+.loop4_bb:
+    INT 10h
+    INC CX
+    CMP CX, block_finish_col
+    JNZ .loop4_bb
+    INC DX
+.loop3_b:
+    MOV CX, block_start_col
+.loop4_b:
+    INT 10h
+    ADD CX, 11
+    CMP CX, block_finish_col
+    JB .loop4_b
+    INC DX
+    CMP DX, block_finish_row
+    JNZ .loop3_b
+    MOV DX, block_finish_row
+    MOV CX, block_start_col
+.loop4_bbb:
+    INT 10h
+    INC CX
+    CMP CX, block_finish_col
+    JNZ .loop4_bbb
+    INC block_finish_row
     RET
-PantallaJuego ENDP
+Dibujar_Borde_Bloque_Unico ENDP
 
 END
