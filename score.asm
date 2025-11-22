@@ -27,6 +27,12 @@ DisplayScore PROC
     RET
 DisplayScore ENDP
 
+; Procedimiento UpdateScore
+; Actualiza el score de acuerdo al valor que se tiene
+; guardao
+; Entrada: score
+; Salida: Llamada a DisplayScore
+; Descripcion: Se realiza conversion de entero a ASCII
 UpdateScore PROC
     XOR AX, AX
     MOV SI, 9
