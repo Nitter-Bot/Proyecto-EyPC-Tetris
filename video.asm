@@ -12,8 +12,16 @@
     block_start_row DW 184
     block_finish_col DW 220
     block_finish_row DW 196
-
+    block_colour DB ?
     background_colour DB 68h
+
+    PUBLIC block_start_col
+    PUBLIC block_start_row
+    PUBLIC block_finish_col
+    PUBLIC block_finish_row
+    PUBLIC block_colour
+    EXTRN random_incoming1_shape_number : BYTE
+    EXTRN random_incoming2_shape_number : BYTE
     EXTRN block_border_colour : BYTE
 .CODE
 
@@ -23,6 +31,7 @@ PUBLIC RestaurarModoTexto
 PUBLIC LimpiarPantalla
 PUBLIC DibujarTablero
 PUBLIC DibujarBorde
+PUBLIC DibujarBloqueUnico
 
 ; Procedimiento IniciarModoGrafico -----------------
 ; Establece Modo 13h (320x200) y apunta ES a la VRAM.
@@ -138,4 +147,32 @@ Dibujar_Borde_Bloque_Unico PROC
     RET
 Dibujar_Borde_Bloque_Unico ENDP
 
+; Procedimiento Dibujar_Bloque_Unico
+DibujarBloqueUnico PROC
+    MOV AH, 0Ch
+    MOV AL, block_colour
+    INC block_start_col
+    INC block_start_row
+    DEC block_finish_col
+    DEC block_finish_row 
+    MOV DX, block_start_row  
+.loop3:
+    MOV CX, block_start_col
+.loop4:
+    INT 10h
+    INC CX 
+    CMP CX, block_finish_col
+    JNZ .loop4
+    INC DX
+    CMP DX, block_finish_row
+    JNZ .loop3
+    DEC block_start_col
+    DEC block_start_row
+    INC block_finish_col
+    INC block_finish_row
+    RET
+DibujarBloqueUnico ENDP
+
+; --- PROCESO COMÚN (Lógica de dibujo unificada) ---
+; Entrada: AL = ID de la figura
 END
