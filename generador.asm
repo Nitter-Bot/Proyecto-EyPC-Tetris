@@ -18,13 +18,18 @@ ENDM
 .Data
     PUBLIC random_incoming1_shape_number 
     PUBLIC random_incoming2_shape_number 
+    random_shape_number DB ?
     random_incoming1_shape_number DB ?
     random_incoming2_shape_number DB ?
 
 .CODE
 
+EXTRN display_upcoming_1 : PROC
+EXTRN display_upcoming_2 : PROC
+
 PUBLIC NumeroAleatorio
 EXTRN Delay : PROC
+EXTRN LimpiarSiguiente: PROC
 
 ;   Procedimiento NumeroAleatorio
 ;   Funcion que genera numeros aleatorios
@@ -47,5 +52,32 @@ NumeroAleatorio PROC
     MOV random_incoming2_shape_number, DL
     RET
 NumeroAleatorio ENDP
+
+ActualizarQueue PROC
+    MOV BL, random_incoming1_shape_number
+    MOV random_shape_number, BL
+    MOV BL , random_incoming2_shape_number
+    MOV random_incoming1_shape_number, BL
+
+    ; 2. Generar nueva pieza futura (0-4)
+    MOV AH, 00h
+    INT 1AH
+    MOV AX, DX
+    XOR DX, DX
+    MOV CX, 5
+    DIV CX
+    MOV random_incoming2_shape_number, DL
+
+    ; 3. Actualizar UI
+    CALL LimpiarSiguiente
+    CALL display_upcoming_1
+    CALL display_upcoming_2
+    RET
+ActualizarQueue ENDP
+
+FiguraAleatoria PROC
+
+    RET
+FiguraAleatoria ENDP
 
 END
