@@ -1,152 +1,373 @@
 .MODEL SMALL
-
 .DATA
-    TAM_BLOQUE DW 10
-    TABLERO_OFFSET_X DW 10
-    TABLERO_OFFSET_Y DW 5
-    
-    pos_x DW ?
-    pos_y DW ?
-    pb_x1 DW ?
-    pb_x2 DW ?
-    pb_y1 DW ?
-    pb_y2 DW ?
-    pb_color DW ?
 
-    BasePiezas   DW OFFSET datos_pieza_I
-                 DW OFFSET datos_pieza_J
-                 DW OFFSET datos_pieza_L
-                 DW OFFSET datos_pieza_O
-                 DW OFFSET datos_pieza_S
-                 DW OFFSET datos_pieza_T
-                 DW OFFSET datos_pieza_Z
-
-datos_pieza_I DB 11, 0,0, 0,1, 1,0, 1,1
-datos_pieza_J DB  1, 0,0, 0,1, 1,0, 2,0
-datos_pieza_L DB 12, 0,0, 1,0, 2,0, 2,1
-datos_pieza_O DB 14, 0,0, 1,0, 2,0, 3,0
-datos_pieza_S DB 10, 0,0, 0,1, 1,1, 1,2
-datos_pieza_T DB 13, 0,0, 1,0, 1,1, 2,1
-datos_pieza_Z DB  4, 0,0, 1,0, 2,0, 1,1
-
+    active_block_num_one DW ?, ?, ?, ?
+    active_block_num_two DW ?, ?, ?, ?
+    active_block_num_three DW ?, ?, ?, ?
+    active_block_num_four DW ?, ?, ?, ?    
+    active_block_center DW ?, ?, ?, ?     
 .CODE
 
-EXTRN DibujaPixel : PROC
+PUBLIC draw_square_block
+PUBLIC draw_square_block_2
+PUBLIC draw_rectangle_block
+PUBLIC draw_rectangle_block_2
+PUBLIC draw_L_block
+PUBLIC draw_L_block_2
+PUBLIC draw_L_block_3
+PUBLIC draw_T_block
+PUBLIC draw_T_block_2
+PUBLIC draw_Z_block
+PUBLIC draw_Z_block_2
+PUBLIC draw_Z_block_3
 
-PUBLIC DibujarPieza
+EXTRN DibujarBloqueUnico : PROC
+EXTRN block_colour : BYTE
+EXTRN block_start_col : WORD
+EXTRN block_start_row : WORD
+EXTRN block_finish_col : WORD
+EXTRN block_finish_row : WORD
 
-;Procedimiento DibujaBloque
-;Dibuja un bloque de 19x19 pixeles
-;Entrada AX = PosX (0-9), BX = PosY(0-19), SI = Color
-DibujaBloque PROC
-; --- 1. Calcular Coordenadas de Píxeles ---
-    ; a) PixelX1
-    PUSH CX             ; Guardar CX
-    PUSH SI
-    MOV CX, AX          ; CX = GridX
-    MOV AX, TAM_BLOQUE
-    MUL CX
-    ADD AX, TABLERO_OFFSET_X
-    MOV pb_x1, AX
+draw_square_block PROC
+    MOV block_start_col, 148
+    MOV block_start_row, 4
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico 
+    CALL fill_array_num_one
+    MOV block_start_col, 160
+    MOV block_start_row, 4
+    MOV block_finish_col, 172
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_two
+    MOV block_start_col, 148
+    MOV block_start_row, 16
+    MOV block_finish_col, 160
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_three
+    MOV block_start_col, 160
+    MOV block_start_row, 16
+    MOV block_finish_col, 172
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_four
+    ret
+draw_square_block ENDP
 
-    ; b) PixelY1
-    MOV AX, TAM_BLOQUE
-    MUL BX
-    ADD AX, TABLERO_OFFSET_Y
-    MOV pb_y1, AX
-
-    ; c) PixelX2
-    MOV CX, pb_x1
-    ADD CX, TAM_BLOQUE
-    MOV pb_x2, CX
-
-    ; d) PixelY2
-    MOV CX, pb_y1
-    ADD CX, TAM_BLOQUE
-    MOV pb_y2, CX
-
-    ; e) Guardar Color
-    MOV SI, pb_color
-    POP CX
-
-    PUSH AX
-    PUSH BX
-    PUSH CX
-    PUSH DX
-
-    MOV CX, pb_x1
-    MOV DX, pb_y1
-
-    .I:
-        .J:
-            CALL DibujaPixel
-            INC CX
-            CMP CX , pb_x2
-        JLE .J
-        MOV CX, pb_x1
-        INC DX
-        CMP DX, pb_y2
-    JL .I
-
-    POP DX
-    POP CX
-    POP BX
-    POP AX
-    POP SI
+draw_square_block_2 PROC
+    MOV block_start_col, 148
+    MOV block_start_row, 4
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico 
+    MOV block_start_col, 160
+    MOV block_start_row, 4
+    MOV block_finish_col, 172
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
     RET
-DibujaBloque ENDP
+draw_square_block_2 ENDP
 
-; --- Procedimiento DibujarPieza (NUEVO) ---
-; Dibuja una pieza completa en una posición del tablero.
-; Entrada: AX = Índice de la Pieza (0-6)
-;          CX = GridX (Posición base en el tablero, 0-18)
-;          DX = GridY (Posición base en el tablero, 0-18)
-DibujarPieza PROC
-    MOV pos_x, CX
-    MOV pos_y, DX
-    PUSH BX
-    
-    PUSH SI
-    MOV BX, AX
-    SHL BX, 1
+draw_rectangle_block PROC
+    MOV block_start_col, 136
+    MOV block_start_row, 16
+    MOV block_finish_col, 148
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_one
+    MOV block_start_col, 148
+    MOV block_start_row, 16
+    MOV block_finish_col, 160
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_two
+    MOV block_start_col, 160
+    MOV block_start_row, 16
+    MOV block_finish_col, 172
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_three
+    MOV block_start_col, 172
+    MOV block_start_row, 16
+    MOV block_finish_col, 184
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_four 
+    MOV block_start_col, 160
+    MOV block_start_row, 28
+    MOV block_finish_col, 160
+    MOV block_finish_row, 28
+    CALL fill_center_block
+    ret
+draw_rectangle_block ENDP 
 
-    MOV SI, OFFSET BasePiezas
-    ADD SI, BX
-    MOV SI, [SI]
+draw_rectangle_block_2 PROC
+    MOV block_start_col, 136
+    MOV block_start_row, 4
+    MOV block_finish_col, 148
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_one
+    MOV block_start_col, 148
+    MOV block_start_row, 4
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_two
+    MOV block_start_col, 160
+    MOV block_start_row, 4
+    MOV block_finish_col, 172
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_three
+    MOV block_start_col, 172
+    MOV block_start_row, 4
+    MOV block_finish_col, 184
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_four 
+    MOV block_start_col, 160
+    MOV block_start_row, 16
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL fill_center_block
+    ret
+draw_rectangle_block_2 ENDP 
 
-    MOV AL, [SI]
-    MOV AH, 0
-    MOV pb_color, AX
-    INC SI
+draw_L_block PROC
+    MOV block_start_col, 148
+    MOV block_start_row, 4
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_one
+    MOV block_start_col, 148
+    MOV block_start_row, 16
+    MOV block_finish_col, 160
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_two
+    MOV block_start_col, 148
+    MOV block_start_row, 28
+    MOV block_finish_col, 160
+    MOV block_finish_row, 40
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_three
+    MOV block_start_col, 160
+    MOV block_start_row, 28
+    MOV block_finish_col, 172
+    MOV block_finish_row, 40
+    CALL DibujarBloqueUnico 
+    CALL fill_array_num_four
+    MOV block_start_col, 160
+    MOV block_start_row, 16
+    MOV block_finish_col, 172
+    MOV block_finish_row, 28
+    CALL fill_center_block
+    ret
+draw_L_block ENDP 
 
-    MOV BP, 0       ; BP = Contador (4 bloques)
-    .LOOP_DIBUJA_BLOQUE:
-        ; 1. Leer Coords Relativas
-        MOV AL, [SI]    ; AL = X_relativa
-        MOV AH, 0
-        INC SI
-        MOV BL, [SI]    ; BL = Y_relativa
-        MOV BH, 0
-        INC SI          ; <-- ¡IMPORTANTE! Mover el puntero 2 veces
-    
-        ; 2. Calcular Coords Absolutas
-        ;    (BaseX está en CL, BaseY está en DL)
-        ADD AX, pos_x      ; AL = X_abs (X_rel + BaseX)
-        ADD BX, pos_y      ; BL = Y_abs (Y_rel + BaseY)
-
-        PUSH SI
-        CALL DibujaBloque
-        POP SI
-        MOV AX, 0
-        MOV BX, 0
-        INC BP
-        CMP BP,4
-    JL .LOOP_DIBUJA_BLOQUE
-
-    POP SI
-    POP BX
-
+draw_L_block_2 PROC
+    MOV block_start_col, 148
+    MOV block_start_row, 4
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico 
+    MOV block_start_col, 160
+    MOV block_start_row, 4
+    MOV block_finish_col, 172
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
     RET
-DibujarPieza ENDP
+draw_L_block_2 ENDP
+
+draw_L_block_3 PROC
+    MOV block_start_col, 148
+    MOV block_start_row, 16
+    MOV block_finish_col, 160
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico 
+    MOV block_start_col, 160
+    MOV block_start_row, 16
+    MOV block_finish_col, 172
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico
+    MOV block_start_col, 148
+    MOV block_start_row, 4
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
+    ret 
+draw_L_block_3 ENDP
+
+draw_T_block PROC
+    MOV block_start_col, 148
+    MOV block_start_row, 4
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
+    CALL fill_array_num_one
+    MOV block_start_col, 136
+    MOV block_start_row, 16
+    MOV block_finish_col, 148
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico 
+    CALL fill_array_num_two
+    MOV block_start_col, 148
+    MOV block_start_row, 16
+    MOV block_finish_col, 160
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico 
+    CALL fill_array_num_three
+    MOV block_start_col, 160
+    MOV block_start_row, 16
+    MOV block_finish_col, 172
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico   
+    CALL fill_array_num_four 
+    MOV block_start_col, 148
+    MOV block_start_row, 16
+    MOV block_finish_col, 160
+    MOV block_finish_row, 28
+    CALL fill_center_block
+    ret
+draw_T_block ENDP 
+
+draw_T_block_2 PROC
+    MOV block_start_col, 136
+    MOV block_start_row, 4
+    MOV block_finish_col, 148
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico 
+    MOV block_start_col, 148
+    MOV block_start_row, 4
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico 
+    MOV block_start_col, 160
+    MOV block_start_row, 4
+    MOV block_finish_col, 172
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico   
+    ret
+draw_T_block_2 ENDP
+
+draw_Z_block PROC
+    MOV block_start_col, 148
+    MOV block_start_row, 4
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico  
+    CALL fill_array_num_one
+    MOV block_start_col, 148
+    MOV block_start_row, 16
+    MOV block_finish_col, 160
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico 
+    CALL fill_array_num_two
+    MOV block_start_col, 160
+    MOV block_start_row, 16
+    MOV block_finish_col, 172
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico 
+    CALL fill_array_num_three
+    MOV block_start_col, 160
+    MOV block_start_row, 28
+    MOV block_finish_col, 172
+    MOV block_finish_row, 40
+    CALL DibujarBloqueUnico   
+    CALL fill_array_num_four
+    MOV block_start_col, 160
+    MOV block_start_row, 16
+    MOV block_finish_col, 172
+    MOV block_finish_row, 28
+    CALL fill_center_block 
+    MOV block_start_col, 148
+    MOV block_start_row, 16
+    MOV block_finish_col, 160
+    MOV block_finish_row, 28
+    CALL fill_center_block
+    ret
+draw_Z_block ENDP
+
+draw_Z_block_2 PROC
+    MOV block_start_col, 160
+    MOV block_start_row, 4
+    MOV block_finish_col, 172
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico  
+    ret
+draw_Z_block_2 ENDP  
+
+draw_Z_block_3 PROC
+    MOV block_start_col, 148
+    MOV block_start_row, 4
+    MOV block_finish_col, 160
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico  
+    MOV block_start_col, 160
+    MOV block_start_row, 4
+    MOV block_finish_col, 172
+    MOV block_finish_row, 16
+    CALL DibujarBloqueUnico
+    MOV block_start_col, 160
+    MOV block_start_row, 16
+    MOV block_finish_col, 172
+    MOV block_finish_row, 28
+    CALL DibujarBloqueUnico  
+    ret
+draw_Z_block_3 ENDP
+
+; --- PROCEDIMIENTO AUXILIAR (Privado) ---
+; Copia las coordenadas actuales al array apuntado por SI
+FILL_GENERIC_HELPER PROC
+    MOV BX, block_start_col   
+    MOV [SI], BX         
+    ADD SI, 2
+    MOV BX, block_start_row 
+    MOV [SI], BX        
+    ADD SI, 2
+    MOV BX, block_finish_col 
+    MOV [SI], BX         
+    ADD SI, 2
+    MOV BX, block_finish_row
+    MOV [SI], BX         
+    ADD SI, 2   
+    RET
+FILL_GENERIC_HELPER ENDP
+
+; --- FUNCIONES ORIGINALES (Refactorizadas) ---
+
+fill_array_num_one PROC
+    LEA SI, active_block_num_one
+    CALL FILL_GENERIC_HELPER
+    RET              
+fill_array_num_one ENDP
+
+fill_array_num_two PROC
+    LEA SI, active_block_num_two
+    CALL FILL_GENERIC_HELPER
+    RET              
+fill_array_num_two ENDP
+
+fill_array_num_three PROC
+    LEA SI, active_block_num_three
+    CALL FILL_GENERIC_HELPER
+    RET              
+fill_array_num_three ENDP
+
+fill_array_num_four PROC
+    LEA SI, active_block_num_four
+    CALL FILL_GENERIC_HELPER
+    RET              
+fill_array_num_four ENDP 
+
+fill_center_block PROC
+    LEA SI, active_block_center
+    CALL FILL_GENERIC_HELPER
+    RET              
+fill_center_block ENDP
 
 END
