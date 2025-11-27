@@ -33,6 +33,7 @@ EXTRN DibujarBloqueUnico : PROC
 
 PUBLIC display_upcoming_1
 PUBLIC display_upcoming_2
+PUBLIC LimpiarSiguiente
 
 LimpiarSiguiente proc
     MOV AH, 0Ch
