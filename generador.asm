@@ -38,10 +38,10 @@ EXTRN Delay : PROC
 EXTRN LimpiarSiguiente: PROC
 EXTRN BloqueLibreSencillo : PROC
 EXTRN block_colour : BYTE
-EXTRN block_start_col : BYTE
-EXTRN block_start_row : BYTE
-EXTRN block_finish_col : BYTE
-EXTRN block_finish_row : BYTE
+EXTRN block_start_col : WORD
+EXTRN block_start_row : WORD
+EXTRN block_finish_col : WORD
+EXTRN block_finish_row : WORD
 EXTRN draw_square_block : PROC
 EXTRN draw_square_block_2 : PROC
 EXTRN draw_rectangle_block : PROC
