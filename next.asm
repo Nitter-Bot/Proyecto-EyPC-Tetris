@@ -24,7 +24,7 @@ ENDM
     EXTRN block_finish_col : WORD
     EXTRN random_incoming1_shape_number : BYTE
     EXTRN random_incoming2_shape_number : BYTE
-    EXTRN block_colour : WORD
+    EXTRN block_colour : BYTE
 
     temp_y_offset DW 0
 .CODE
