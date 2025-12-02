@@ -24,6 +24,10 @@
     PUBLIC block_colour
     PUBLIC block_is_free_simple
     PUBLIC block_is_free
+    PUBLIC play_ground_start_col
+    PUBLIC play_ground_start_row
+    PUBLIC play_ground_finish_col
+    PUBLIC play_ground_finish_row
     EXTRN random_incoming1_shape_number : BYTE
     EXTRN random_incoming2_shape_number : BYTE
     EXTRN block_border_colour : BYTE
@@ -41,6 +45,8 @@ PUBLIC DibujarTablero
 PUBLIC DibujarBorde
 PUBLIC DibujarBloqueUnico
 PUBLIC BloqueLibreSencillo 
+PUBLIC BorrarBloque
+PUBLIC BloqueLibre
 ; Procedimiento IniciarModoGrafico -----------------
 ; Establece Modo 13h (320x200) y apunta ES a la VRAM.
 IniciarGraficos PROC
@@ -180,6 +186,31 @@ DibujarBloqueUnico PROC
     INC block_finish_row
     RET
 DibujarBloqueUnico ENDP
+
+BorrarBloque PROC
+    MOV AH, 0Ch
+    MOV AL, background_colour
+    INC block_start_col
+    INC block_start_row
+    DEC block_finish_col
+    DEC block_finish_row 
+    MOV DX, block_start_row  
+.loop3_r:
+    MOV CX, block_start_col
+.loop4_r:
+    INT 10h
+    INC CX 
+    CMP CX, block_finish_col
+    JNZ .loop4_r
+    INC DX
+    CMP DX, block_finish_row
+    JNZ .loop3_r
+    DEC block_start_col
+    DEC block_start_row
+    INC block_finish_col
+    INC block_finish_row
+    RET   
+BorrarBloque ENDP
 
 ;Procecimiento BloqueLibreSencillo
 
