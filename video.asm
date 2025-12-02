@@ -17,6 +17,8 @@
     block_is_free_simple DB 0
     block_is_free DB 0
     temp_colour DB 4H
+    PUBLIC temp_colour
+    PUBLIC background_colour
     PUBLIC block_start_col
     PUBLIC block_start_row
     PUBLIC block_finish_col
