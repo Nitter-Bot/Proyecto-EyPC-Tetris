@@ -22,11 +22,12 @@ ENDM
     PUBLIC random_incoming1_shape_number
     PUBLIC random_incoming2_shape_number
     PUBLIC not_enough_space
+    PUBLIC random_shape_number
     random_shape_number DB ?
     not_enough_space DB 0H
     random_incoming1_shape_number DB ?
     random_incoming2_shape_number DB ?
-    TablaColoresPiezas DB 0Eh, 24h, 02h, 04h, 06h
+    TablaColoresPiezas DB 0Eh, 24h, 2Fh, 28h, 23h
 .CODE
 
 PUBLIC NumeroAleatorio
