@@ -28,6 +28,9 @@ EXTRN shape_shift_down : PROC
 EXTRN produce_next_shape : BYTE
 EXTRN not_enough_space : BYTE
 EXTRN check_and_modify_full_rows : PROC
+EXTRN Mostrar_Menu_Principal : PROC
+EXTRN Mostrar_Instrucciones : PROC
+EXTRN Esperar_Tecla_Menu : PROC
 
 Delay PROC
     MOV delay_counter, 1
@@ -45,14 +48,28 @@ MAIN PROC
     MOV AX, @DATA
     MOV DS, AX
 
-    ;Inicio de Graficos y pantalla
-    CALL LimpiarPantalla
+.AppLoop:
+    CALL Mostrar_Menu_Principal
+    CALL Esperar_Tecla_Menu
+    CMP AL, '1'
+    JE .StartGame
+    CMP AL, '2'
+    JE .ShowInstructions
+    CMP AL, '3'
+    JE .ExitApp
+    JMP .AppLoop
+
+.ShowInstructions:
+    CALL Mostrar_Instrucciones
+    JMP .AppLoop
+
+.StartGame:
     CALL IniciarGraficos
     CALL DibujarTablero
     MOV block_border_colour, 4CH
     CALL DibujarBorde
     CALL DisplayScore
-    ;Dibujar siguientes piezas
+    MOV not_enough_space, 0H
     CALL NumeroAleatorio
     CALL Delay
     CALL FiguraAleatoria
@@ -73,16 +90,15 @@ MAIN PROC
 .skip_generate_label:
     JMP .game_loop
 .game_over:
-
     MOV block_border_colour, 4CH 
     CALL DibujarBorde
-    
     MOV AH, 00h
     INT 16h
-
+    JMP .AppLoop
+.ExitApp:
     CALL RestaurarModoTexto
     CALL LimpiarPantalla
     MOV AX, 4C00h
     INT 21h
 MAIN ENDP
-END MAIN 
+END MAIN
