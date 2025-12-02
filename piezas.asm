@@ -1,4 +1,81 @@
 .MODEL SMALL
+; --- MACRO: Verificar Limite del Tablero ---
+; Compara una coordenada especifica (Offset) de los 4 bloques contra un limite
+CHECK_LIMITS MACRO OFFSET_IDX, LIMIT_VAR, JUMP_EXIT
+    LOCAL check_two
+    LOCAL check_three
+    LOCAL check_four
+    LOCAL safe_continue
+
+    ; --- Bloque 1 ---
+    MOV BX, active_block_num_one[OFFSET_IDX]
+    CMP BX, LIMIT_VAR
+    JNE check_two      ; Si NO es igual, revisa el siguiente
+    JMP JUMP_EXIT       ; Si ES igual, usa JMP largo a la salida
+
+check_two:
+    ; --- Bloque 2 ---
+    MOV BX, active_block_num_two[OFFSET_IDX]
+    CMP BX, LIMIT_VAR
+    JNE check_three
+    JMP JUMP_EXIT
+
+check_three:
+    ; --- Bloque 3 ---
+    MOV BX, active_block_num_three[OFFSET_IDX]
+    CMP BX, LIMIT_VAR
+    JNE check_four
+    JMP JUMP_EXIT
+
+check_four:
+    ; --- Bloque 4 ---
+    MOV BX, active_block_num_four[OFFSET_IDX]
+    CMP BX, LIMIT_VAR
+    JNE safe_continue
+    JMP JUMP_EXIT
+
+safe_continue:
+    ; Si llega aqui, ninguno choco con el limite
+ENDM
+
+; --- CORRECCION AQUI: Recargar CX y DX antes de cada bloque ---
+CHECK_COLLISION MACRO OFF_X, OFF_Y, JUMP_EXIT
+    ; Bloque 1
+    MOV CX, OFF_X  ; <--- RECARGAR CX
+    MOV DX, OFF_Y  ; <--- RECARGAR DX
+    LEA SI, active_block_num_one
+    CALL PREPARE_COLLISION_CHECK
+    CALL BloqueLibre
+    CMP block_is_free, 0H
+    JE JUMP_EXIT
+    
+    ; Bloque 2
+    MOV CX, OFF_X  ; <--- RECARGAR CX
+    MOV DX, OFF_Y  ; <--- RECARGAR DX
+    LEA SI, active_block_num_two
+    CALL PREPARE_COLLISION_CHECK
+    CALL BloqueLibre
+    CMP block_is_free, 0H
+    JE JUMP_EXIT
+    
+    ; Bloque 3
+    MOV CX, OFF_X  ; <--- RECARGAR CX
+    MOV DX, OFF_Y  ; <--- RECARGAR DX
+    LEA SI, active_block_num_three
+    CALL PREPARE_COLLISION_CHECK
+    CALL BloqueLibre
+    CMP block_is_free, 0H
+    JE JUMP_EXIT
+    
+    ; Bloque 4
+    MOV CX, OFF_X  ; <--- RECARGAR CX
+    MOV DX, OFF_Y  ; <--- RECARGAR DX
+    LEA SI, active_block_num_four
+    CALL PREPARE_COLLISION_CHECK
+    CALL BloqueLibre
+    CMP block_is_free, 0H
+    JE JUMP_EXIT
+ENDM
 
 BorrarTemporal MACRO ARRAY_PTR
     ; 1. Cargar coords actuales y BORRAR
@@ -94,7 +171,10 @@ PUBLIC draw_T_block_2
 PUBLIC draw_Z_block
 PUBLIC draw_Z_block_2
 PUBLIC draw_Z_block_3
-PUBLIC magic_shift_right
+PUBLIC shape_shift_right
+PUBLIC shape_shift_left
+PUBLIC shape_shift_down
+PUBLIC shape_shift_up
 
 EXTRN DibujarBloqueUnico : PROC
 EXTRN block_colour : BYTE
@@ -477,4 +557,94 @@ magic_shift_up PROC
     RET
 magic_shift_up ENDP
 
+PREPARE_COLLISION_CHECK PROC
+    MOV BX, [SI]      
+    ADD BX, CX        
+    MOV block_start_col, BX
+    
+    MOV BX, [SI+2]    
+    ADD BX, DX        
+    MOV block_start_row, BX
+    
+    MOV BX, [SI+4]    
+    ADD BX, CX        
+    MOV block_finish_col, BX
+    
+    MOV BX, [SI+6]    
+    ADD BX, DX        
+    MOV block_finish_row, BX
+    RET
+PREPARE_COLLISION_CHECK ENDP
+
+SHAPE_SHIFT_RIGHT PROC
+    MOV successful_magic_shift, 0H
+    
+    ; 1. Verificar Limites
+    CHECK_LIMITS 4, play_ground_finish_col, EXIT_SHAPE_SHIFT_RIGHT
+    
+    ; 2. Verificar Colision (+12 X, 0 Y)
+    ; La macro ahora se encarga de cargar 12 y 0 en cada paso
+    CHECK_COLLISION 12, 0, EXIT_SHAPE_SHIFT_RIGHT
+    
+    ; 3. Mover
+    CALL magic_shift_right
+    MOV successful_magic_shift, 1H
+
+EXIT_SHAPE_SHIFT_RIGHT:
+    MOV block_border_colour, 4CH 
+    CALL DibujarBorde
+    RET   
+SHAPE_SHIFT_RIGHT ENDP 
+
+SHAPE_SHIFT_LEFT PROC
+    MOV successful_magic_shift, 0H 
+    
+    CHECK_LIMITS 0, play_ground_start_col, EXIT_SHAPE_SHIFT_LEFT
+    
+    ; Verificar Colision (-12 X, 0 Y)
+    CHECK_COLLISION -12, 0, EXIT_SHAPE_SHIFT_LEFT
+    
+    CALL magic_shift_left
+    MOV successful_magic_shift, 1H
+
+EXIT_SHAPE_SHIFT_LEFT:
+    MOV block_border_colour, 4CH 
+    CALL DibujarBorde
+    RET   
+SHAPE_SHIFT_LEFT ENDP
+
+SHAPE_SHIFT_DOWN PROC 
+    MOV produce_next_shape, 0H
+    MOV successful_magic_shift, 0H 
+    
+    CHECK_LIMITS 6, play_ground_finish_row, EXIT_SHAPE_SHIFT_DOWN
+    
+    ; Verificar Colision (0 X, +12 Y)
+    CHECK_COLLISION 0, 12, EXIT_SHAPE_SHIFT_DOWN
+    
+    CALL magic_shift_down
+    MOV successful_magic_shift, 1H
+    JMP EXIT_SHAPE_SHIFT_DOWN_WITHOUT_ANY_PRODUCE
+
+EXIT_SHAPE_SHIFT_DOWN:
+    MOV produce_next_shape, 1H 
+
+EXIT_SHAPE_SHIFT_DOWN_WITHOUT_ANY_PRODUCE:
+    RET
+SHAPE_SHIFT_DOWN ENDP   
+
+SHAPE_SHIFT_UP PROC 
+    MOV successful_magic_shift, 0H 
+    
+    CHECK_LIMITS 2, play_ground_start_row, EXIT_SHAPE_SHIFT_UP
+    
+    ; Verificar Colision (0 X, -12 Y)
+    CHECK_COLLISION 0, -12, EXIT_SHAPE_SHIFT_UP    
+    
+    CALL magic_shift_up
+    MOV successful_magic_shift, 1H
+
+EXIT_SHAPE_SHIFT_UP:
+    RET
+SHAPE_SHIFT_UP ENDP
 END
