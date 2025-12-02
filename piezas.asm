@@ -152,10 +152,13 @@ ENDM
     active_block_center DW ?, ?, ?, ?     
     successful_magic_shift DB 0
     produce_next_shape DB 0
+    PUBLIC successful_magic_shift
+    PUBLIC produce_next_shape  
     PUBLIC active_block_num_one
     PUBLIC active_block_num_two
     PUBLIC active_block_num_three
     PUBLIC active_block_num_four
+    PUBLIC active_block_center
     EXTRN block_is_free : BYTE
 .CODE
 
@@ -175,6 +178,7 @@ PUBLIC shape_shift_right
 PUBLIC shape_shift_left
 PUBLIC shape_shift_down
 PUBLIC shape_shift_up
+PUBLIC FILL_GENERIC_HELPER
 
 EXTRN DibujarBloqueUnico : PROC
 EXTRN block_colour : BYTE
@@ -292,8 +296,8 @@ draw_rectangle_block_2 PROC
     CALL DibujarBloqueUnico
     CALL fill_array_num_four 
     MOV block_start_col, 160
-    MOV block_start_row, 16
-    MOV block_finish_col, 160
+    MOV block_start_row, 4
+    MOV block_finish_col, 172
     MOV block_finish_row, 16
     CALL fill_center_block
     ret

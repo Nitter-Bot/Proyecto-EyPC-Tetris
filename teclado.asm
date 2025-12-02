@@ -9,7 +9,7 @@
 EXTRN shape_shift_right : PROC
 EXTRN shape_shift_left : PROC
 EXTRN shape_shift_down : PROC
-;EXTRN shape_rotate : PROC
+EXTRN shape_rotate : PROC
 EXTRN successful_magic_shift : BYTE 
 
 PUBLIC LlamarTeclado
@@ -65,7 +65,7 @@ shape_shift_down_label:
     JMP arrow_exit                        
 
 shape_rotate_label:
-    ;CALL shape_rotate
+    CALL shape_rotate
     JMP arrow_exit 
 
 fast_shape_shift_down_label:
