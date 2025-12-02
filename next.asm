@@ -102,7 +102,7 @@ draw_up_square: ; ID 0
     ret
 
 draw_up_line:   ; ID 1
-    mov block_colour, 9H
+    mov block_colour, 24H
     DIBUJAR_BLOQUE_RELATIVO 256, 40
     DIBUJAR_BLOQUE_RELATIVO 268, 40
     DIBUJAR_BLOQUE_RELATIVO 280, 40
@@ -110,7 +110,7 @@ draw_up_line:   ; ID 1
     ret
 
 draw_up_L:      ; ID 2
-    mov block_colour, 2H
+    mov block_colour, 2FH
     DIBUJAR_BLOQUE_RELATIVO 268, 40
     DIBUJAR_BLOQUE_RELATIVO 268, 52
     DIBUJAR_BLOQUE_RELATIVO 268, 64
@@ -118,7 +118,7 @@ draw_up_L:      ; ID 2
     ret
 
 draw_up_T:      ; ID 3
-    mov block_colour, 4H
+    mov block_colour, 28H
     DIBUJAR_BLOQUE_RELATIVO 256, 64
     DIBUJAR_BLOQUE_RELATIVO 268, 64
     DIBUJAR_BLOQUE_RELATIVO 268, 52
@@ -126,7 +126,7 @@ draw_up_T:      ; ID 3
     ret
 
 draw_up_Z:      ; ID 4
-    mov block_colour, 6H
+    mov block_colour, 23H
     DIBUJAR_BLOQUE_RELATIVO 268, 40
     DIBUJAR_BLOQUE_RELATIVO 268, 52
     DIBUJAR_BLOQUE_RELATIVO 280, 52
