@@ -25,6 +25,7 @@
 \usepackage[utf8]{inputenc}
 %\usepackage[style=numeric]{biblatex}  % Usar biblatex con Biber
 %\addbibresource{references.bib}  % Agregar el archivo .bib
+
 \usepackage{listings}
 \lstdefinestyle{estiloASM}{
     language=[x86masm]assembler, % Lenguaje x86 MASM
@@ -63,12 +64,14 @@
 	\tableofcontents
 	
 	\newpage
-
 	\input{Introduccion.tex}
+	\input{./menu.tex}
 	\input{Tablero.tex}
-	\input{Siguiente.tex}
 	\input{Puntaje.tex}
-
+	\input{Siguiente.tex}
+	\input{Teclado.tex}
+	\input{Puntos.tex}
+	\input{Conclusiones.tex}
 	%\input{Esteticos}
 
 	%\nocite{*}

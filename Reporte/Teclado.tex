@@ -1,0 +1,80 @@
+\section{Teclado}
+
+Ahora por como sirve tetris la pieza empezara a caer cada cierto intervalo de tiempo, por lo tanto ya podemos a 
+empezar a jugar, por lo que necesitamos saber como decirle al programa que queremos hacer, si movernos a la
+izquierda, a la derecha , bajar un poco, rotar la pieza o tirar la pieza
+
+Lo que hacemos es leer una tecla, si es alguna de las que podemos usar para movernos hacemos la accion que corresponde
+\begin{itemize}
+	\item W - Nos permite rotar la pieza
+	\item A - Nos movemos a la izquierda
+	\item S - Bajamos la pieza una casilla
+	\item D - Nos movemos a la derecha
+	\item F - Tirar la pieza
+\end{itemize}
+
+\begin{lstlisting}[style=estiloASM,caption={Implementacion del teclado}]
+LlamarTeclado PROC
+    MOV delay_counter, 1
+delay_loop3:
+    MOV CX, 0FFFFH
+    INC delay_counter
+delay_loop4:
+    CALL Acciones
+    LOOP delay_loop4
+    CMP delay_counter, 5
+    JNZ delay_loop3
+    RET
+LlamarTeclado ENDP
+
+Acciones PROC
+    MOV AH, 01h
+    INT 16h
+    JZ arrow_exit
+
+    MOV AH, 00h
+    INT 16h
+
+    CMP AL, 'd'
+    JE shape_shift_right_label
+    CMP AL, 'a'
+    JE shape_shift_left_label
+    CMP AL, 's' 
+    JE shape_shift_down_label 
+    CMP AL, 'w'
+    JE shape_rotate_label
+    CMP AL, 'f'
+    JE fast_shape_shift_down_label
+
+    JMP arrow_exit
+
+shape_shift_right_label: 
+    CALL shape_shift_right
+    JMP arrow_exit
+
+shape_shift_left_label:
+    CALL shape_shift_left
+    JMP arrow_exit 
+
+shape_shift_down_label:
+    CALL shape_shift_down
+    JMP arrow_exit
+
+shape_rotate_label:
+    CALL shape_rotate
+    JMP arrow_exit 
+
+fast_shape_shift_down_label:
+fast_loop:
+    CALL shape_shift_down
+    CMP successful_magic_shift, 0H
+    JE arrow_exit
+    JMP fast_loop
+
+arrow_exit:
+    RET
+Acciones ENDP
+
+\end{lstlisting}
+
+

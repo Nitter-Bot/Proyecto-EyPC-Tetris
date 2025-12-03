@@ -1,0 +1,26 @@
+\section{Siguiente pieza}
+
+Para terminar con la parte de nuestro entorno inicial necesitamos 
+saber la cola de las piezas siguientes, para ello lo explicare a 
+grandes rasgos lo que hago
+
+\begin{enumerate}
+	\item Generar dos numeros aleatorios entre 0 a 4 y dibujarlos
+	\item Sacar el primer numero generado para que sea la primer pieza a caer y dibujarla en el tablero
+	\item Generar aleatoriamente otra pieza (numero de 0 a 4)
+	\item Actualizar las piezas siguientes
+\end{enumerate}
+
+Para esto ya se implementan funciones para dibujar las piezas en nuestro tablero,
+se ocupan funciones que generen numeros aleatorios.
+Ahora surgue un problema que pasa si tenemos un estado donde ya no podemos seguir metiendo piezas, es decir, 
+hemos perdido, pues lo que se hace es poner un validador de que la pieza a dibujar no tiene algo que le estorbe,
+de ser asi se dibuja en otra posicion y si ya no tiene mas espacio para futuro el juego termina.
+Asi que esto ultimo solo requiere la nueva funcion que valide si la pieza siguiente puede ser dibujada, y si es 
+asi con instrucciones de JE y JMP se eligue la figura para dibujar, el resultado queda de la siguiente manera
+
+\begin{figure}[h!]
+	\includegraphics[height = 5cm]{./figures/TableroFinal.png}
+	\caption{Tablero Final Dibujado}\label{fig:TF}
+\end{figure}
+

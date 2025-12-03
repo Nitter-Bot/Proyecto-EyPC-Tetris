@@ -1,0 +1,66 @@
+\section{Tablero}
+
+Pasando al game loop del juego primero debemos manejar el entorno donde vamos a jugar asi que primero dibujaremos el entorno
+Para ello lo primero que se hice es que pasamos al modo 13h para poder usar colores, lo siguiente es dibujar nuestro tablero
+para esto dibuje un rectangulo en medio de la pantalla y luego dibuje los bordes de bloques de 1x1, en este caso sera un 
+tablero de 10x16, con cuadros de 12x12 pixeles
+
+La logica para dibujar los rectangulos y bordes son simples loops definidos en este codigo
+
+\begin{lstlisting}[style=estiloASM,caption={Funcion para el dibujar el tablero}]
+
+DibujarTablero PROC
+    MOV AH, 0Ch
+    MOV AL, background_colour
+    MOV DX, play_ground_start_row
+.LOOP1:
+    MOV CX, play_ground_start_col
+.LOOP2:
+    INT 10h
+    INC CX
+    CMP CX, play_ground_finish_col
+    JNZ .LOOP2
+    INC DX
+    CMP DX, play_ground_finish_row
+    JNZ .LOOP1
+    RET
+DibujarTablero ENDP
+
+\end{lstlisting}
+
+\begin{lstlisting}[style=estiloASM,caption={Funcion para dibujar los bordes}]
+DibujarBorde PROC
+    MOV BX, play_ground_start_row
+    MOV block_start_row, BX
+    ADD BX, 12
+    MOV block_finish_row, BX
+.Dibujar:
+    MOV BX, play_ground_start_col
+    MOV block_start_col, BX
+    ADD BX, 12
+    MOV block_finish_col, BX
+    .Dibujar2:
+        CALL Dibujar_Borde_Bloque_Unico
+        ADD block_start_col, 12
+        ADD block_finish_col, 12
+        MOV BX, play_ground_finish_col
+        CMP BX, block_start_col
+        JNZ .Dibujar2
+    ADD block_start_row, 12
+    ADD block_finish_row, 12
+    MOV BX, play_ground_finish_row
+    CMP BX, block_start_row
+    JNZ .Dibujar
+    RET
+DibujarBorde ENDP
+\end{lstlisting}
+
+Como resultado de esto podemos obervar en pantalla lo siguiente
+
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[height = 5cm]{./figures/TableroVacio.png}
+	\end{center}
+	\caption{Tablero inicial}\label{fig:TableroInicial}
+\end{figure}
+

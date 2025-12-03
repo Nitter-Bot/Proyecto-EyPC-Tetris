@@ -1,0 +1,49 @@
+\section{Puntaje}
+
+Luego dibujamos nuestro sistema de puntaje que llevamos para ello lo que se va a hacer es
+simplemente en una posision marcada poner el puntaje , y luego podemos usar nuestra funcion para actualizar el score, que lo que hace es una conversion 
+binaria a ASCII para actualizar y mostrar nuestro puntaje, ambas funciones se implementaron de la siguiente forma
+y se ve de la siguiente forma
+
+\begin{lstlisting}[style=estiloASM,caption={Funciones para mostrar y actualizar el puntaje}]
+DisplayScore PROC
+    MOV AH, 02h
+    MOV BH, 00h
+    MOV DH, 04h
+    MOV DL, 01h
+    INT 10h
+    MOV AH, 09h
+    LEA DX, msg_score
+    INT 21h
+    RET
+DisplayScore ENDP
+
+UpdateScore PROC
+    XOR AX, AX
+    MOV SI, 9
+    MOV AX, score
+    MOV BX, 10
+.label:
+    CMP SI, 5
+    JE .exit_label
+    XOR DX, DX
+    DIV BX
+    ADD DX, 30h
+    MOV [msg_score+si], DL
+    DEC SI
+    JMP .label
+.exit_label:
+    CALL DisplayScore
+    RET
+UpdateScore ENDP
+\end{lstlisting}
+
+Se ve en nuestro entorno asi 
+
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[height = 5cm]{./figures/score.png}
+	\end{center}
+	\caption{Score dibujado}\label{fig:score}
+\end{figure}
+
